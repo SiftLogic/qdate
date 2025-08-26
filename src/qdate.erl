@@ -19,6 +19,7 @@
     to_date/1,
     to_date/2,
     to_date/3,
+	to_date/4,
     to_now/1,
     to_now/2,
     to_unixtime/1,
@@ -315,6 +316,22 @@ to_date(ToTZ, Disambiguate, RawDate)  ->
             {ExtractedDate, ExtractedTZ};
         {ParsedDate,undefined} ->
             {ParsedDate,ExtractedTZ};
+        {ParsedDate,ParsedTZ} ->
+            {ParsedDate,ParsedTZ}
+    end,
+    to_date(FromTZ, ToTZ, Disambiguate, RawDate3).
+
+to_date(FromTz, ToTZ, Disambiguate, RawDate) when is_binary(RawDate) ->
+    to_date(FromTz, ToTZ, Disambiguate, binary_to_list(RawDate));
+to_date(FromTz, ToTZ, Disambiguate, RawDate) when is_binary(ToTZ) ->
+    to_date(binary_to_list(FromTz), binary_to_list(ToTZ), Disambiguate, RawDate);
+to_date(FromTz, ToTZ, Disambiguate, RawDate)  ->
+    {ExtractedDate, _ExtractedTZ} = extract_timezone(RawDate),
+    {RawDate3, FromTZ} = case try_registered_parsers(RawDate) of
+        undefined ->
+            {ExtractedDate, FromTz};
+        {ParsedDate,undefined} ->
+            {ParsedDate,FromTz};
         {ParsedDate,ParsedTZ} ->
             {ParsedDate,ParsedTZ}
     end,
